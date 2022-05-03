@@ -14,7 +14,12 @@ export class PullRequest {
   async addReviewers(reviewers: string[]): Promise<void> {
     core.debug(JSON.stringify(this.context))
 
-    const { owner, repo, number: pull_number } = this.context.issue
+    const { owner, repo } = this.context.issue
+
+    const pull_number = this.getPullRequestNumber()
+    if (pull_number === 0) {
+      throw new Error('No PR Number found...')
+    }
 
     const result = await this.client.pulls.createReviewRequest({
       owner,
@@ -27,7 +32,13 @@ export class PullRequest {
   }
 
   async addAssignees(assignees: string[]): Promise<void> {
-    const { owner, repo, number: issue_number } = this.context.issue
+    const { owner, repo } = this.context.issue
+
+    const issue_number = this.getPullRequestNumber()
+    if (issue_number === 0) {
+      throw new Error('No PR Number found...')
+    }
+
     const result = await this.client.issues.addAssignees({
       owner,
       repo,
@@ -43,5 +54,17 @@ export class PullRequest {
     }
     const { labels: pullRequestLabels = [] } = this.context.payload.pull_request
     return pullRequestLabels.some(label => labels.includes(label.name))
+  }
+
+  getPullRequestNumber(): number {
+    if (this.context.issue.number) {
+      return this.context.issue.number
+    }
+
+    if (!this.context.payload.pull_request) {
+      return 0
+    }
+
+    return this.context.payload.pull_request.number
   }
 }
