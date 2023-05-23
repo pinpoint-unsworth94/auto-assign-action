@@ -109,6 +109,9 @@ function handlePullRequest(client, context, config) {
                 const reviewers = utils.chooseReviewers(owner, config);
                 if (reviewers.length > 0) {
                     yield pr.addReviewers(reviewers);
+                    //output the reviewrs as github actions output
+                    core.setOutput('reviewers', reviewers.join(','));
+                    core.setOutput('reviewers_count', number);
                     core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`);
                 }
             }
@@ -233,11 +236,13 @@ class PullRequest {
         return pullRequestLabels.some(label => labels.includes(label.name));
     }
     getPullRequestNumber() {
-        var _a, _b, _c, _d;
-        if ((_b = (_a = this.context) === null || _a === void 0 ? void 0 : _a.issue) === null || _b === void 0 ? void 0 : _b.number) {
+        if (this.context.issue.number) {
             return this.context.issue.number;
         }
-        return (_d = (_c = this.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.number) !== null && _d !== void 0 ? _d : 0;
+        if (!this.context.payload.pull_request) {
+            return 0;
+        }
+        return this.context.payload.pull_request.number;
     }
 }
 exports.PullRequest = PullRequest;

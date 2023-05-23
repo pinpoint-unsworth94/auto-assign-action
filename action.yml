@@ -9,6 +9,11 @@ inputs:
   configuration-path:
     description: 'A path for the auto-assign configuration'
     default: '.github/auto_assign.yml'
+outputs:
+  reviewers_count:
+    description: 'The number of assigned reviewers'
+  reviewers:
+    description: 'The list of assigned reviewers'
 runs:
   using: 'node12'
   main: 'dist/index.js'

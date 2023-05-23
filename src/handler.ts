@@ -103,6 +103,9 @@ export async function handlePullRequest(
 
       if (reviewers.length > 0) {
         await pr.addReviewers(reviewers)
+        //output the reviewrs as github actions output
+        core.setOutput('reviewers', reviewers.join(','))
+        core.setOutput('reviewers_count', number)
         core.info(`Added reviewers to PR #${number}: ${reviewers.join(', ')}`)
       }
     } catch (error) {
